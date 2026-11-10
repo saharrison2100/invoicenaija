@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# android build output
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/capacitor-cordova-android-plugins/build/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+
+# secrets and local files
+.env
+.env.*
+*.keystore
+*.jks
+keystore.properties
+google-services.json
+
+# test artefacts
+.downloads/
+*.log
+.DS_Store

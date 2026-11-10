@@ -1,0 +1,25 @@
+{
+  "name": "InvoiceNaija — invoices in 30 seconds",
+  "short_name": "InvoiceNaija",
+  "description": "Create, send and track professional invoices in 30 seconds. Partial payments, receipts, reminders and recurring invoices for Nigerian freelancers and artisans.",
+  "id": "/invoicenaija/",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#0B6E4F",
+  "lang": "en-NG",
+  "dir": "ltr",
+  "categories": ["business", "finance", "productivity"],
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "New invoice", "url": "./index.html#new", "description": "Create an invoice" },
+    { "name": "Invoices", "url": "./index.html#invoices", "description": "See every invoice" }
+  ]
+}

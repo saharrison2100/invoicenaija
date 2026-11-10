@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>InvoiceNaija — invoices in 30 seconds</title>
+    <meta name="description" content="Create, send and track professional invoices in 30 seconds. Partial payments, receipts, reminders and recurring invoices for Nigerian freelancers and artisans." />
+    <meta name="theme-color" content="#0B6E4F" />
+    <meta name="color-scheme" content="light" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon-192.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="InvoiceNaija" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app" class="app" role="main">
+      <div class="boot">
+        <div class="boot-mark">₦</div>
+        <div class="boot-text">InvoiceNaija</div>
+        <div class="spinner" aria-label="Loading"></div>
+      </div>
+    </div>
+
+    <nav id="tabbar" class="tabbar" hidden aria-label="Main navigation"></nav>
+    <button id="fab" class="fab" type="button" hidden aria-label="New invoice" data-act="new-invoice">
+      <span class="fab-plus">+</span><span class="fab-text">New invoice</span>
+    </button>
+    <div id="modal-root"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <noscript>
+      <p style="padding: 24px; font-family: sans-serif">InvoiceNaija needs JavaScript. Please enable it and reload.</p>
+    </noscript>
+
+    <script src="./config.js"></script>
+    <script src="./vendor/jspdf.umd.min.js" defer></script>
+    <script src="./vendor/html2canvas.min.js" defer></script>
+    <script type="module" src="./js/app.js"></script>
+    <script>
+      if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('Service worker failed', error));
+        });
+      }
+    </script>
+  </body>
+</html>
