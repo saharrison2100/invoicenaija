@@ -6,6 +6,14 @@ Naira only, offline-first, installable as an app on Android (Capacitor) or in th
 
 Current release: **0.2.0-beta**
 
+| What | Link |
+| --- | --- |
+| Live web app (installable PWA) | https://saharrison2100.github.io/invoicenaija/ |
+| Android APK (debug-signed, 3.9 MB) | https://github.com/saharrison2100/invoicenaija/releases/download/v0.2.0-beta/InvoiceNaija-debug.apk |
+| Release notes | https://github.com/saharrison2100/invoicenaija/releases/tag/v0.2.0-beta |
+
+Install the APK on Android: open the link, download, then allow install from unknown sources when prompted.
+
 ![Dashboard](screenshots/03-dashboard.png)
 
 ## What it does
@@ -33,7 +41,7 @@ Current release: **0.2.0-beta**
 | --- | --- | --- | --- |
 | ![Upgrade](screenshots/09-upgrade.png) | ![Recurring](screenshots/10-recurring.png) | ![Settings](screenshots/11-settings.png) | ![Paywall](screenshots/12-paywall.png) |
 
-Screenshots are produced by the smoke test (`npm run test:smoke`), so they always match the shipped code.
+Screenshots are produced by the smoke test (`npm run test:smoke`), so they always match the shipped code. `node tests/live-check.mjs` runs the same style of check against the deployed Pages URL: sign-up, onboarding, dashboard, five sample invoices and the service worker all pass on the live site.
 
 ## Run it
 
