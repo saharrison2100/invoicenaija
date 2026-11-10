@@ -75,6 +75,19 @@ Everything is stored on the device (`localStorage`), one bucket per account. The
 7. **The APK is debug-signed** for assessment. A Play Store build needs the signing steps in BUILD.md.
 8. **No Android emulator was available here.** The APK is verified by a clean build, manifest/dex inspection and signature check, and the identical web bundle is verified by the Chromium smoke test.
 
+## GitHub Actions (one manual step)
+
+The workflow that builds this APK lives in [`ci/android-workflow.yml`](ci/android-workflow.yml). It could not be
+pushed to `.github/workflows/android.yml` from here because the publishing token does not carry the `workflow`
+scope, so GitHub refuses to create workflow files with it. Two one-minute ways to switch it on:
+
+1. On GitHub: **Add file → Create new file**, name it `.github/workflows/android.yml`, paste the contents of
+   `ci/android-workflow.yml`, commit. It then runs on every push to `main` and on `v*` tags, runs `npm test`,
+   builds the APK and attaches it to the `v0.2.0-beta` release.
+2. Or re-run `git push` with a token that has the `workflow` scope after moving the file back.
+
+The APK attached to the release was built locally with exactly the commands the workflow runs.
+
 ## Licence
 
 MIT. See [LICENSE](LICENSE).
