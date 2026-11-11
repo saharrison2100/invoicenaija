@@ -210,6 +210,7 @@ test('reminder message fills every placeholder and never leaks braces', () => {
       invoice: inv,
       balance: 6000000,
       payLink: 'https://pay.example/abc',
+      now: TODAY,
     }
   );
   assert.equal(text, 'Tunde|INV-007|₦60,000.00|due in 2 days|Ada Cakes|https://pay.example/abc');
@@ -249,8 +250,8 @@ test('free plan allows 3 invoices a month, Pro is unlimited', () => {
 });
 
 test('an expired Pro plan falls back to Free', () => {
-  assert.equal(isPro({ tier: 'Pro', renews_at: TODAY - DAY }), false);
-  assert.equal(isPro({ tier: 'Pro', renews_at: TODAY + DAY }), true);
+  assert.equal(isPro({ tier: 'Pro', renews_at: TODAY - DAY }, TODAY), false);
+  assert.equal(isPro({ tier: 'Pro', renews_at: TODAY + DAY }, TODAY), true);
   const data = {
     plan: { tier: 'Pro', renews_at: TODAY - DAY },
     invoices: [1, 2, 3, 4].map((n) => invoice({ id: `i${n}`, issue_date: TODAY })),
@@ -261,7 +262,7 @@ test('an expired Pro plan falls back to Free', () => {
 test('PDF branding needs Pro or a per-invoice unlock', () => {
   assert.equal(canBrandPdf({ plan: { tier: 'Free' } }, { pdf_unlocked: false }), false);
   assert.equal(canBrandPdf({ plan: { tier: 'Free' } }, { pdf_unlocked: true }), true);
-  assert.equal(canBrandPdf({ plan: { tier: 'Pro', renews_at: TODAY + DAY } }, {}), true);
+  assert.equal(canBrandPdf({ plan: { tier: 'Pro', renews_at: TODAY + DAY } }, {}, TODAY), true);
 });
 
 // ---- dashboard --------------------------------------------------------------------------

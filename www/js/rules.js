@@ -292,13 +292,13 @@ export function dueReminders(invoices, payments, schedule = DEFAULT_SCHEDULE, no
 }
 
 /** Fills the reminder placeholders, in a friendly Nigerian-English tone. */
-export function reminderMessage(template, { business, client, invoice, balance, payLink } = {}) {
+export function reminderMessage(template, { business, client, invoice, balance, payLink, now = Date.now() } = {}) {
   const owed = balance ?? invoiceTotal(invoice);
   return String(template || DEFAULT_REMINDER_TEMPLATE)
     .replaceAll('{client_name}', client?.name || 'there')
     .replaceAll('{invoice_number}', invoice?.number || '')
     .replaceAll('{amount_due}', formatMoney(owed))
-    .replaceAll('{due_date}', invoice?.due_date ? relativeDue(invoice.due_date).toLowerCase() : 'due')
+    .replaceAll('{due_date}', invoice?.due_date ? relativeDue(invoice.due_date, now).toLowerCase() : 'due')
     .replaceAll('{business_name}', business?.business_name || '')
     .replaceAll('{pay_link}', payLink || '');
 }
@@ -420,21 +420,21 @@ export function monthlyInvoiceCount(invoices, now = Date.now()) {
   ).length;
 }
 
-export function isPro(plan) {
+export function isPro(plan, now = Date.now()) {
   if (!plan) return false;
   if (plan.tier !== 'Pro') return false;
   if (!plan.renews_at) return true;
-  return plan.renews_at > Date.now();
+  return plan.renews_at > now;
 }
 
 /** Free plan: 3 invoices a month. Viewing and paying existing invoices is never blocked. */
 export function canCreateInvoice(data, now = Date.now()) {
-  if (isPro(data.plan)) return { allowed: true, used: monthlyInvoiceCount(data.invoices, now), limit: null };
+  if (isPro(data.plan, now)) return { allowed: true, used: monthlyInvoiceCount(data.invoices, now), limit: null };
   const used = monthlyInvoiceCount(data.invoices, now);
   return { allowed: used < FREE_INVOICE_LIMIT, used, limit: FREE_INVOICE_LIMIT };
 }
 
 /** Does this invoice get the logo and custom colours in its PDF? */
-export function canBrandPdf(data, invoice) {
-  return isPro(data.plan) || Boolean(invoice?.pdf_unlocked);
+export function canBrandPdf(data, invoice, now = Date.now()) {
+  return isPro(data.plan, now) || Boolean(invoice?.pdf_unlocked);
 }

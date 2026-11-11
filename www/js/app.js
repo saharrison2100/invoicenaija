@@ -245,6 +245,36 @@ async function doAuth(mode) {
   }
 }
 
+let gsiLoaded = null;
+
+/** Loads the Google Identity Services script once, and says so plainly if the phone cannot reach it. */
+function loadGsi() {
+  if (window.google?.accounts?.id) return Promise.resolve();
+  if (gsiLoaded) return gsiLoaded;
+  gsiLoaded = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => {
+      gsiLoaded = null;
+      reject(new Error('Could not reach Google. Check your connection, or use phone + PIN.'));
+    };
+    document.head.appendChild(script);
+  });
+  return gsiLoaded;
+}
+
+/** The ID token is base64url; atob needs standard base64 with padding. */
+function decodeIdToken(token) {
+  const part = String(token || '').split('.')[1] || '';
+  if (!part) throw new Error('Google returned an unreadable response.');
+  const b64 = part.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
+  const bytes = Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
 function doGoogle() {
   const clientId = String(cfg().googleClientId || '').trim();
   if (!clientId) {
@@ -257,22 +287,56 @@ function doGoogle() {
     `);
     return;
   }
-  // Real Google Identity Services flow.
-  const script = document.createElement('script');
-  script.src = 'https://accounts.google.com/gsi/client';
-  script.onload = () => {
-    window.google.accounts.id.initialize({
-      client_id: clientId,
-      callback: async (response) => {
-        const payload = JSON.parse(atob(response.credential.split('.')[1]));
-        state.account = await S.auth.signInWithGoogle(payload.email, payload.name);
-        loadAccount();
-        render();
-      },
-    });
-    window.google.accounts.id.prompt();
-  };
-  document.head.appendChild(script);
+
+  // Real Google Identity Services flow: the official button, rendered by Google itself, so the
+  // popup is allowed by the browser and the account chooser behaves the way people expect.
+  openModal(`
+    <div class="grab"></div>
+    <div class="sheet-head"><h2>Continue with Google</h2></div>
+    <p class="sub">Google is only used to label the account on this device. Your invoices never leave the phone.</p>
+    <div id="gsi-slot" style="display:flex;justify-content:center;margin:16px 0;min-height:44px"></div>
+    <div id="gsi-error" class="error"></div>
+    <button class="btn btn-outline" data-act="close-modal">Cancel</button>
+  `);
+
+  const slot = document.getElementById('gsi-slot');
+  const errorEl = document.getElementById('gsi-error');
+
+  loadGsi().then(() => {
+    try {
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        ux_mode: 'popup',
+        callback: (response) => finishGoogle(response, clientId),
+      });
+      window.google.accounts.id.renderButton(slot, {
+        theme: 'outline',
+        size: 'large',
+        text: 'continue_with',
+        shape: 'pill',
+        width: 300,
+      });
+    } catch (error) {
+      errorEl.textContent = 'Google rejected this client ID. Check the authorised origin for this domain in Google Cloud.';
+    }
+  }).catch((error) => {
+    errorEl.textContent = error.message;
+  });
+}
+
+async function finishGoogle(response, clientId) {
+  const errorEl = document.getElementById('gsi-error');
+  try {
+    const payload = decodeIdToken(response?.credential);
+    if (!payload.email) throw new Error('Google did not return an email address.');
+    if (payload.aud !== clientId) throw new Error('Google answered for a different app. Check the client ID in config.js.');
+    state.account = await S.auth.signInWithGoogle(payload.email, payload.name || '');
+    loadAccount();
+    closeModal();
+    render();
+  } catch (error) {
+    if (errorEl) errorEl.textContent = error.message;
+  }
 }
 
 // ---- screens: onboarding ----------------------------------------------------------------

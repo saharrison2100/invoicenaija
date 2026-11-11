@@ -134,9 +134,16 @@ The app only switches the plan to Pro when the verifier answers `{ ok: true, sta
 ## 6. Google sign-in
 
 1. Google Cloud Console → APIs & Services → Credentials → Create OAuth client ID → **Web application**.
-2. Authorised JavaScript origins: `https://<your-pages-domain>` and `http://localhost:8080`.
-3. Copy the client ID into `www/config.js` as `googleClientId`.
-4. `npm run test:smoke` does not need it; the app falls back to phone + PIN.
+2. Authorised JavaScript origins, exactly these two:
+   - `https://saharrison2100.github.io` (the origin only: no path, no trailing slash; it covers `/invoicenaija/www/`)
+   - `http://localhost:8080` (for `npm run serve`)
+   Add `https://localhost` too if you ever open the Android WebView build in a browser; Google rejects
+   that origin for OAuth, which is why phone + PIN is the Android path.
+3. Copy the client ID (it ends in `.apps.googleusercontent.com`) into `www/config.js` as `googleClientId`.
+4. The button uses Google Identity Services: it renders Google's own button and reads the ID token. If the
+   origin is not authorised, Google renders nothing and the sheet says the client ID was rejected; that
+   message means step 2 is wrong, not the code.
+5. `npm run test:smoke` does not need it; the app falls back to phone + PIN.
 
 For the Android WebView, the same Web client ID works for the Google Identity Services button, provided the origin (`https://localhost`) is added — Google does not accept that origin, so in practice Google sign-in is a browser/PWA feature and phone + PIN is the Android path.
 
